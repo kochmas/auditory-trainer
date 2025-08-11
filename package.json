@@ -3,5 +3,10 @@
   "version": "1.0.0",
   "scripts": {
     "test": "node tests/randomTrack.test.js && node tests/preset-resolution.spec.js && node tests/range-clamp.spec.js && node tests/indexer-incremental.spec.js"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.4.2",
+    "@capacitor/cli": "^7.4.2",
+    "@capacitor/core": "^7.4.2"
   }
 }
