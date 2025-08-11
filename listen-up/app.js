@@ -389,7 +389,7 @@
     }
 
     const randomTrack = () => {
-        const index = Math.floor(getRandomBetween(0, sampleTracks.length - 1));
+        const index = Math.floor(getRandomBetween(0, sampleTracks.length)); // upper bound is exclusive
         sampleTracks[index].element.click();
         audioPlayer.play();
         onPlayPressed();
