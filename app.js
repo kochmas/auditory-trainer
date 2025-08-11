@@ -41,7 +41,7 @@
     const dynamicFilter = document.getElementById('dynamicFilter');
     const dynamicGating = document.getElementById('dynamicGating');
     const dynamicPlaybackRate = document.getElementById('dynamicPlaybackRate');
-    const dyanmicBinauralBeat = document.getElementById('dynamicBinauralBeat');
+    const dynamicBinauralBeat = document.getElementById('dynamicBinauralBeat');
     const shuffleBtn = document.getElementById("shuffleBtn");
 
     // Audio Nodes
@@ -72,7 +72,7 @@
         dynamicFilter: dynamicFilter.checked,
         dynamicGating: dynamicGating.checked,
         dynamicPlaybackRate: dynamicPlaybackRate.checked,
-        dynamicBinauralBeat: dyanmicBinauralBeat.checked,
+        dynamicBinauralBeat: dynamicBinauralBeat.checked,
         shuffle: true
     };
 
@@ -103,7 +103,7 @@
         settings.dynamicFilter = dynamicFilter.checked;
         settings.dynamicGating = dynamicGating.checked;
         settings.dynamicPlaybackRate = dynamicPlaybackRate.checked;
-        settings.dynamicBinauralBeat = dyanmicBinauralBeat.checked;
+        settings.dynamicBinauralBeat = dynamicBinauralBeat.checked;
 
         dynamicGatingLogic();
 
@@ -345,7 +345,7 @@
         updateSettings();
         dynamicPlaybackLogic();
     });
-    dyanmicBinauralBeat.addEventListener('change', () => {
+    dynamicBinauralBeat.addEventListener('change', () => {
         updateSettings();
         dynamicBinauralBeatLogic();
     });
