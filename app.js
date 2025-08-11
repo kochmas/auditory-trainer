@@ -290,13 +290,13 @@
 
         // Dynamic filter logic with random interval
         filterInterval = setInterval(() => {
-            const randomDelay = getRandomBetween(100, 3000); // 500ms to 3000ms
+            const randomDelay = getRandomBetween(100, 3000); // 100ms to 3000ms
             setTimeout(dynamicFilterLogic, randomDelay);
         }, 1000);
 
         // Dynamic gating logic with random interval
         gatingInterval = setInterval(() => {
-            const randomDelay = getRandomBetween(200, 4000); // 500ms to 3000ms
+            const randomDelay = getRandomBetween(200, 4000); // 200ms to 4000ms
             setTimeout(dynamicGatingLogic, randomDelay);
         }, 1000);
     }
