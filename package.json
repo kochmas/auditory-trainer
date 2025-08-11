@@ -1,0 +1,7 @@
+{
+  "name": "auditory-trainer",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "node tests/randomTrack.test.js"
+  }
+}
