@@ -2,6 +2,6 @@
   "name": "auditory-trainer",
   "version": "1.0.0",
   "scripts": {
-    "test": "node tests/randomTrack.test.js"
+    "test": "node tests/randomTrack.test.js && node tests/preset-resolution.spec.js && node tests/range-clamp.spec.js && node tests/indexer-incremental.spec.js"
   }
 }

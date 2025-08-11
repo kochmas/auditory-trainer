@@ -43,6 +43,9 @@
     const dynamicPlaybackRate = document.getElementById('dynamicPlaybackRate');
     const dynamicBinauralBeat = document.getElementById('dynamicBinauralBeat');
     const shuffleBtn = document.getElementById("shuffleBtn");
+    const presetSelect = document.getElementById('presetSelect');
+    const savePresetBtn = document.getElementById('savePresetBtn');
+    const deletePresetBtn = document.getElementById('deletePresetBtn');
 
     // Audio Nodes
     let sourceNode;
@@ -75,6 +78,78 @@
         dynamicBinauralBeat: dynamicBinauralBeat.checked,
         shuffle: true
     };
+
+    let presets = ListenUpPresets.loadPresets();
+    let activePresetId = null;
+
+    const renderPresetOptions = () => {
+        presetSelect.innerHTML = '<option value="">No Preset</option>';
+        presets.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = p.name;
+            presetSelect.appendChild(opt);
+        });
+        if (activePresetId) presetSelect.value = activePresetId;
+    };
+
+    const applyPreset = (preset) => {
+        if (!preset) return;
+        activePresetId = preset.id;
+        const p = preset.params;
+        filterFrequencyMin.value = p.filterMinHz;
+        filterFrequencyMax.value = p.filterMaxHz;
+        gatingFrequencyMin.value = p.gateMinS;
+        gatingFrequencyMax.value = p.gateMaxS;
+        volumeControl.value = p.volume;
+        dynamicFilter.checked = p.dynamicFilter;
+        dynamicGating.checked = p.dynamicGating;
+        dynamicPlaybackRate.checked = p.dynamicPlayback;
+        dynamicBinauralBeat.checked = p.binauralLayering;
+        updateSettings();
+    };
+
+    savePresetBtn.addEventListener('click', () => {
+        const name = prompt('Preset name?');
+        if (!name) return;
+        const preset = {
+            id: Date.now().toString(),
+            name,
+            scope: 'global',
+            params: ListenUpPresets.clampParams({
+                filterMinHz: settings.filterMin,
+                filterMaxHz: settings.filterMax,
+                gateMinS: settings.gatingMin,
+                gateMaxS: settings.gatingMax,
+                volume: settings.volume,
+                dynamicFilter: settings.dynamicFilter,
+                dynamicGating: settings.dynamicGating,
+                dynamicPlayback: settings.dynamicPlaybackRate,
+                highPassEnabled: true,
+                binauralLayering: settings.dynamicBinauralBeat,
+            }),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        presets.push(preset);
+        ListenUpPresets.savePresets(presets);
+        activePresetId = preset.id;
+        renderPresetOptions();
+    });
+
+    deletePresetBtn.addEventListener('click', () => {
+        const id = presetSelect.value;
+        if (!id) return;
+        presets = presets.filter(p => p.id !== id);
+        ListenUpPresets.savePresets(presets);
+        activePresetId = null;
+        renderPresetOptions();
+    });
+
+    presetSelect.addEventListener('change', () => {
+        const preset = presets.find(p => p.id === presetSelect.value);
+        applyPreset(preset);
+    });
 
     // Initialize Audio Nodes and connect them
     const initAudioNodes = () => {
@@ -397,6 +472,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         fetchSampleTracks();
+        renderPresetOptions();
         setTimeout(() => {
             const link = document.getElementById("welcomeModalLaunch");
             link.click();
