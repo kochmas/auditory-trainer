@@ -42,7 +42,8 @@
     const dynamicGating = document.getElementById('dynamicGating');
     const dynamicPlaybackRate = document.getElementById('dynamicPlaybackRate');
     const dynamicBinauralBeat = document.getElementById('dynamicBinauralBeat');
-    const shuffleBtn = document.getElementById("shuffleBtn");
+    const shuffleBtn = document.getElementById('shuffleBtn');
+    const trackPickerBtn = document.getElementById('trackPickerBtn');
     const presetSelect = document.getElementById('presetSelect');
     const savePresetBtn = document.getElementById('savePresetBtn');
     const deletePresetBtn = document.getElementById('deletePresetBtn');
@@ -457,7 +458,7 @@
             })
             .catch(error => console.error('Error fetching sample tracks:', error));
 
-        document.getElementById('trackPickerBtn').addEventListener('click', function (evt) {
+        trackPickerBtn.addEventListener('click', function (evt) {
             evt.preventDefault();
             $('#sampleTrackModal').modal('show');
         });
