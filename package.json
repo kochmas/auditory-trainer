@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "electron-main.js",
   "scripts": {
-    "test": "node tests/randomTrack.test.js && node tests/preset-resolution.spec.js && node tests/range-clamp.spec.js && node tests/indexer-incremental.spec.js && node tests/preset-input.spec.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "compile:db": "tsc src/db/indexeddb.ts --target es2015 --module none --outDir src/db --rootDir src/db --skipLibCheck",
     "build:win": "npm run compile:db && electron-builder --win portable",
     "build:android": "npm run compile:db && npx cap copy android && cd android && ./gradlew assembleRelease"
@@ -13,6 +13,13 @@
     "@capacitor/core": "^7.4.2",
     "electron": "^37.2.6",
     "electron-builder": "^26.0.12",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "jest": "^29.7.0"
+  },
+  "type": "module",
+  "jest": {
+    "testMatch": [
+      "**/tests/audioEngine.test.js"
+    ]
   }
 }
