@@ -443,7 +443,7 @@
 
     const fetchSampleTracks = () => {
 
-        fetch('/music/tracklist.json')
+        fetch('./music/tracklist.json')
             .then(response => response.json())
             .then(data => {
 
