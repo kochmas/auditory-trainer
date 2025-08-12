@@ -13,3 +13,4 @@ build/
 platforms/
 dist/
 node_modules/
+capacitor.config.json
