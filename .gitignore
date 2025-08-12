@@ -5,3 +5,7 @@ promo/
 **/*.zip
 **/.DS_Store
 .DS_Store
+android/
+ios/
+build/
+platforms/
