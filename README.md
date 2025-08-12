@@ -27,3 +27,27 @@
 
 Whether you're looking to improve your language comprehension skills, refine your musical ear, or undergo auditory therapy, ListenUp provides a versatile and customizable environment to help you reach your goals.
 
+## Building
+
+### Prerequisites
+
+- **Node.js** and **npm**
+- **Electron**
+- **Java Development Kit (JDK)** and **Android SDK** for mobile builds
+
+### Commands
+
+To create a portable Windows release:
+
+```bash
+npm run build:win
+```
+
+To assemble an Android release APK:
+
+```bash
+npm run build:android
+```
+
+Android releases must be signed. Generate a keystore with `keytool` and supply its path and credentials via a `keystore.properties` or `gradle.properties` file before building.
+
