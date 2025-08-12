@@ -15,6 +15,8 @@
 - **Gating Frequency Range**: Enables you to set the minimum and maximum gating frequency in seconds, adjusting how the sound is processed over time.
 - **Volume Control**: Gives you the ability to control the volume through a slider, ensuring that the audio levels are to your liking.
 - **Dynamic Filter, Gating  & Playback Rate Switch**: These options let you enable or disable dynamic filtering and gating, as well as dynamic playback speed, offering further customization to your auditory training. High-pass filtering and gating are on by default.
+- **Preset System**: Save the current configuration and reapply it later. Presets are stored locally in your browser.
+- **Track Library**: Imported audio files are cached locally and can be managed from an in-app library page alongside the built-in sample tracks.
 
 ### Usage
 

@@ -43,6 +43,18 @@
     const dynamicPlaybackRate = document.getElementById('dynamicPlaybackRate');
     const dynamicBinauralBeat = document.getElementById('dynamicBinauralBeat');
     const shuffleBtn = document.getElementById("shuffleBtn");
+    const presetSelect = document.getElementById('presetSelect');
+    const presetManagerBtn = document.getElementById('presetManagerBtn');
+    const libraryPage = document.getElementById('libraryPage');
+    const presetPage = document.getElementById('presetPage');
+    const mainPage = document.getElementById('container');
+    const libraryBackBtn = document.getElementById('libraryBackBtn');
+    const addTracksBtn = document.getElementById('addTracksBtn');
+    const userTrackList = document.getElementById('userTrackList');
+    const presetBackBtn = document.getElementById('presetBackBtn');
+    const presetNameInput = document.getElementById('presetNameInput');
+    const presetCreateBtn = document.getElementById('presetCreateBtn');
+    const presetList = document.getElementById('presetList');
 
     // Audio Nodes
     let sourceNode;
@@ -75,6 +87,135 @@
         dynamicBinauralBeat: dynamicBinauralBeat.checked,
         shuffle: true
     };
+
+    const showPage = (page) => {
+        [mainPage, libraryPage, presetPage].forEach(p => p.classList.add('d-none'));
+        page.classList.remove('d-none');
+    };
+
+    const refreshLibrary = () => {
+        userTrackList.innerHTML = '';
+        ListenUpFileManager.load().forEach(track => {
+            const li = document.createElement('li');
+            li.textContent = track.name;
+            li.addEventListener('click', () => {
+                changeAudio(track.dataUrl, track.name);
+                showPage(mainPage);
+            });
+            const del = document.createElement('button');
+            del.textContent = 'Delete';
+            del.className = 'btn btn-sm btn-link text-danger';
+            del.addEventListener('click', (e) => {
+                e.stopPropagation();
+                ListenUpFileManager.removeTrack(track.id);
+                refreshLibrary();
+            });
+            li.appendChild(del);
+            userTrackList.appendChild(li);
+        });
+    };
+
+    trackPickerBtn.addEventListener('click', (evt) => {
+        evt.preventDefault();
+        refreshLibrary();
+        showPage(libraryPage);
+    });
+
+    libraryBackBtn.addEventListener('click', () => showPage(mainPage));
+    addTracksBtn.addEventListener('click', () => audioInput.click());
+
+    let presets = ListenUpPresets.loadPresets();
+    let activePresetId = null;
+
+    const renderPresetOptions = () => {
+        presetSelect.innerHTML = '<option value="">No Preset</option>';
+        presets.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = p.name;
+            presetSelect.appendChild(opt);
+        });
+        if (activePresetId) presetSelect.value = activePresetId;
+    };
+
+    const renderPresetList = () => {
+        presetList.innerHTML = '';
+        presets.forEach(p => {
+            const li = document.createElement('li');
+            li.textContent = p.name;
+            li.addEventListener('click', () => {
+                applyPreset(p);
+                showPage(mainPage);
+            });
+            const del = document.createElement('button');
+            del.textContent = 'Delete';
+            del.className = 'btn btn-sm btn-link text-danger';
+            del.addEventListener('click', (e) => {
+                e.stopPropagation();
+                presets = presets.filter(pr => pr.id !== p.id);
+                ListenUpPresets.savePresets(presets);
+                renderPresetOptions();
+                renderPresetList();
+            });
+            li.appendChild(del);
+            presetList.appendChild(li);
+        });
+    };
+
+    const applyPreset = (preset) => {
+        if (!preset) return;
+        activePresetId = preset.id;
+        const p = preset.params;
+        filterFrequencyMin.value = p.filterMinHz;
+        filterFrequencyMax.value = p.filterMaxHz;
+        gatingFrequencyMin.value = p.gateMinS;
+        gatingFrequencyMax.value = p.gateMaxS;
+        volumeControl.value = p.volume;
+        dynamicFilter.checked = p.dynamicFilter;
+        dynamicGating.checked = p.dynamicGating;
+        dynamicPlaybackRate.checked = p.dynamicPlayback;
+        dynamicBinauralBeat.checked = p.binauralLayering;
+        updateSettings();
+    };
+
+    presetManagerBtn.addEventListener('click', () => {
+        renderPresetList();
+        showPage(presetPage);
+    });
+
+    presetBackBtn.addEventListener('click', () => showPage(mainPage));
+
+    presetCreateBtn.addEventListener('click', () => {
+        const name = presetNameInput.value.trim();
+        if (!name) return;
+        const preset = {
+            id: Date.now().toString(),
+            name,
+            scope: 'global',
+            params: ListenUpPresets.clampParams({
+                filterMinHz: settings.filterMin,
+                filterMaxHz: settings.filterMax,
+                gateMinS: settings.gatingMin,
+                gateMaxS: settings.gatingMax,
+                volume: settings.volume,
+                dynamicFilter: settings.dynamicFilter,
+                dynamicGating: settings.dynamicGating,
+                dynamicPlayback: settings.dynamicPlaybackRate,
+                highPassEnabled: true,
+                binauralLayering: settings.dynamicBinauralBeat,
+            }),
+        };
+        presets.push(preset);
+        ListenUpPresets.savePresets(presets);
+        presetNameInput.value = '';
+        renderPresetOptions();
+        renderPresetList();
+    });
+
+    presetSelect.addEventListener('change', () => {
+        const preset = presets.find(p => p.id === presetSelect.value);
+        applyPreset(preset);
+    });
 
     // Initialize Audio Nodes and connect them
     const initAudioNodes = () => {
@@ -326,7 +467,13 @@
     });
 
     audioInput.addEventListener('change', event => {
-        changeAudio(event.target.files[0], event.target.files[0].name);
+        ListenUpFileManager.addFiles(event.target.files).then(added => {
+            if (added.length) {
+                changeAudio(added[0].dataUrl, added[0].name);
+                refreshLibrary();
+            }
+            event.target.value = '';
+        });
     });
 
     // Event Listeners for updating settings
@@ -372,7 +519,7 @@
                     listItem.textContent = label;
                     listItem.addEventListener('click', function () {
                         changeAudio(track.audio, label);
-                        $('#sampleTrackModal').modal('hide');
+                        showPage(mainPage);
                     });
                     trackList.appendChild(listItem);
                     track.element = listItem;
@@ -382,10 +529,6 @@
             })
             .catch(error => console.error('Error fetching sample tracks:', error));
 
-        document.getElementById('trackPickerBtn').addEventListener('click', function (evt) {
-            evt.preventDefault();
-            $('#sampleTrackModal').modal('show');
-        });
     }
 
     const randomTrack = () => {
@@ -397,6 +540,8 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         fetchSampleTracks();
+        renderPresetOptions();
+        refreshLibrary();
         setTimeout(() => {
             const link = document.getElementById("welcomeModalLaunch");
             link.click();
