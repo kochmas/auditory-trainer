@@ -1,7 +1,13 @@
 {
   "name": "auditory-trainer",
   "version": "1.0.0",
+  "main": "electron-main.js",
   "scripts": {
-    "test": "node tests/randomTrack.test.js && node tests/preset-resolution.spec.js && node tests/range-clamp.spec.js && node tests/indexer-incremental.spec.js && node tests/preset-input.spec.js"
+    "test": "node tests/randomTrack.test.js && node tests/preset-resolution.spec.js && node tests/range-clamp.spec.js && node tests/indexer-incremental.spec.js && node tests/preset-input.spec.js",
+    "build:win": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12"
   }
 }
