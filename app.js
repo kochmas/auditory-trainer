@@ -323,7 +323,7 @@
     }
 
     const changeAudio = (file, name) => {
-        const objectURL = file instanceof File ? URL.createObjectURL(file) : file;
+        const objectURL = file instanceof Blob ? URL.createObjectURL(file) : file;
         audioPlayer.src = objectURL;
         document.getElementById('trackLabel').innerText = name;
         audioPlayer.load();
@@ -401,8 +401,15 @@
         playbackSpeedDisplay.innerHTML = `Playback Rate: ${audioPlayer.playbackRate.toFixed(2)}x`;
     });
 
-    audioInput.addEventListener('change', event => {
-        changeAudio(event.target.files[0], event.target.files[0].name);
+    audioInput.addEventListener('change', async event => {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+        const metas = await FileManager.addFiles(files);
+        const first = metas[0];
+        if (first) {
+            const blob = await FileManager.getFileBlob(first.id);
+            if (blob) changeAudio(blob, first.name);
+        }
     });
 
     // Event Listeners for updating settings
