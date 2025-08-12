@@ -5,7 +5,11 @@ promo/
 **/*.zip
 **/.DS_Store
 .DS_Store
+
+# Build directories
 android/
 ios/
 build/
 platforms/
+dist/
+node_modules/
