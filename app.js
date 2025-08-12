@@ -481,11 +481,7 @@
     window.addEventListener('DOMContentLoaded', () => {
         fetchSampleTracks();
         renderPresetOptions();
-        setTimeout(() => {
-            const link = document.getElementById("welcomeModalLaunch");
-            link.click();
-            window.addEventListener('click', firstInteractionListener);
-        }, 200);
+        window.addEventListener('click', firstInteractionListener);
 
         shuffleBtn.addEventListener("click", function () {
             if (this.classList.contains("btn-secondary")) {
