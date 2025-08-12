@@ -1,5 +1,5 @@
 const assert = require('assert');
-const DirectoryIndexer = require('../directory-indexer.js');
+const DirectoryIndexer = require('../dist/directory-indexer.js');
 
 const indexer = new DirectoryIndexer();
 let changed = indexer.update([

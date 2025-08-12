@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { getRandomBetween, AudioEngine } from '../audioEngine.js';
+import { getRandomBetween, AudioEngine } from '../dist/audioEngine.js';
 
 describe('getRandomBetween', () => {
     test('returns value within range', () => {

@@ -11,7 +11,5 @@ android/
 ios/
 build/
 platforms/
-dist/
 node_modules/
 capacitor.config.json
-src/db/indexeddb.js
