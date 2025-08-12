@@ -7,8 +7,8 @@ promo/
 .DS_Store
 
 # Build directories
-android/
 ios/
+android/
 build/
 platforms/
 node_modules/
