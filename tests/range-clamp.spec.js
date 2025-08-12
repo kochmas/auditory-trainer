@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { clampParams } = require('../preset.js');
+const { clampParams } = require('../dist/preset.js');
 
 const p = clampParams({
   filterMinHz: 10,

@@ -4,9 +4,10 @@
   "main": "electron-main.js",
   "scripts": {
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "compile:db": "tsc src/db/indexeddb.ts --target es2015 --module none --outDir src/db --rootDir src/db --skipLibCheck",
+    "compile:db": "tsc src/db/indexeddb.ts --target es2015 --module none --outDir dist/src/db --rootDir src/db --skipLibCheck",
     "build:win": "npm run compile:db && electron-builder --win portable",
-    "build:android": "npm run compile:db && npx cap copy android && cd android && ./gradlew assembleRelease"
+    "build:android": "npm run compile:db && npx cap copy android && cd android && ./gradlew assembleRelease",
+    "build": "npm run compile:db"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.2",

@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { resolvePreset } = require('../preset.js');
+const { resolvePreset } = require('../dist/preset.js');
 
 const presets = [
   { id: 'g', name: 'Global', scope: 'global', params: {} },
