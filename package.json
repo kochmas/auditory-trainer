@@ -4,13 +4,15 @@
   "main": "electron-main.js",
   "scripts": {
     "test": "node tests/randomTrack.test.js && node tests/preset-resolution.spec.js && node tests/range-clamp.spec.js && node tests/indexer-incremental.spec.js && node tests/preset-input.spec.js",
-    "build:win": "electron-builder --win portable",
-    "build:android": "npx cap copy android && cd android && ./gradlew assembleRelease"
+    "compile:db": "tsc src/db/indexeddb.ts --target es2015 --module none --outDir src/db --rootDir src/db --skipLibCheck",
+    "build:win": "npm run compile:db && electron-builder --win portable",
+    "build:android": "npm run compile:db && npx cap copy android && cd android && ./gradlew assembleRelease"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.2",
     "@capacitor/core": "^7.4.2",
     "electron": "^37.2.6",
-    "electron-builder": "^26.0.12"
+    "electron-builder": "^26.0.12",
+    "typescript": "^5.9.2"
   }
 }
