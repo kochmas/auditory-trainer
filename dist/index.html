@@ -316,15 +316,19 @@
 
             </div>
             <div class="col-6 col-md-3 d-flex">
-                <!-- Pick from Library -->
-                <button id="trackPickerBtn" class="btn btn-primary mb-3 flex-grow-1 ml-2" style="flex-basis: 0;">Free
-                    Library 🎧</button>
+                <!-- Pick Folder -->
+                <div class="input-group mb-3 flex-grow-1 ml-2">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="folderInput" webkitdirectory directory multiple accept="audio/*">
+                        <label class="custom-file-label" for="folderInput">Choose Folder</label>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="row justify-content-center mt-2">
             <div class="col-12 col-md-6 d-flex justify-content-between align-items-center">
-                <div id="trackLabel">J.S. Bach - Cello Suite No. 1: Prelude</div>
+                <div id="trackLabel">No track selected</div>
                 <div class="alert alert-info mb-0 py-1 px-2" role="alert" id="playbackSpeedDisplay"
                     style="font-size: 0.8rem;">
                     Playback Rate: 1.00x
@@ -335,9 +339,7 @@
             <div class="col-12 col-md-6">
                 <div class="d-flex align-items-center">
                     <!-- Audio Player -->
-                    <audio id="audioPlayer" class="w-100" crossOrigin="anonymous" controls disabled>
-                        <source src="./music/bach-cello-suite-1-prelude.mp3">
-                    </audio>
+                    <audio id="audioPlayer" class="w-100" crossOrigin="anonymous" controls disabled></audio>
                     <!-- Shuffle Button -->
                     <button id="shuffleBtn" class="btn btn-success ms-2 margin-left">Shuffle</button>
                 </div>
@@ -347,8 +349,9 @@
         <div class="row justify-content-center mt-2">
             <div class="col-12 col-md-6">
                 <div class="d-flex mb-2">
-                    <select id="presetSelect" class="custom-select mr-2"></select>
+                    <input id="presetName" class="form-control mr-2" placeholder="Preset name">
                     <button id="savePresetBtn" class="btn btn-primary mr-2">Save</button>
+                    <select id="presetSelect" class="custom-select mr-2"></select>
                     <button id="deletePresetBtn" class="btn btn-danger">Delete</button>
                 </div>
             </div>

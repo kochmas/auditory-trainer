@@ -17,6 +17,7 @@ export function registerServiceWorker() {
 
 export function initControls() {
     const audioInput = document.getElementById('audioInput');
+    const folderInput = document.getElementById('folderInput');
     const audioPlayer = document.getElementById('audioPlayer');
     audioPlayer.disabled = true;
     const filterFrequencyMin = document.getElementById('filterFrequencyMin');
@@ -29,6 +30,12 @@ export function initControls() {
     const dynamicPlaybackRate = document.getElementById('dynamicPlaybackRate');
     const dynamicBinauralBeat = document.getElementById('dynamicBinauralBeat');
     const playbackSpeedDisplay = document.getElementById('playbackSpeedDisplay');
+    const presetSelect = document.getElementById('presetSelect');
+    const presetNameInput = document.getElementById('presetName');
+    const savePresetBtn = document.getElementById('savePresetBtn');
+    const deletePresetBtn = document.getElementById('deletePresetBtn');
+    const presetAPI = window.ListenUpPresets;
+    let presets = presetAPI.loadPresets();
 
     const settings = {
         filterMin: parseFloat(filterFrequencyMin.value),
@@ -59,7 +66,84 @@ export function initControls() {
         });
     };
 
+    const refreshPresetOptions = () => {
+        presetSelect.innerHTML = '<option value="">Select preset</option>';
+        presets.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.name;
+            opt.textContent = p.name;
+            presetSelect.appendChild(opt);
+        });
+    };
+
+    const applyPreset = (p) => {
+        filterFrequencyMin.value = p.filterMinHz;
+        filterFrequencyMax.value = p.filterMaxHz;
+        gatingFrequencyMin.value = p.gateMinS;
+        gatingFrequencyMax.value = p.gateMaxS;
+        volumeControl.value = p.volume;
+        dynamicFilter.checked = p.dynamicFilter;
+        dynamicGating.checked = p.dynamicGating;
+        dynamicPlaybackRate.checked = p.dynamicPlayback;
+        dynamicBinauralBeat.checked = p.binauralLayering;
+        updateSettings();
+        engine.dynamicPlaybackLogic();
+        engine.dynamicBinauralBeatLogic();
+    };
+
+    refreshPresetOptions();
+
+    presetSelect.addEventListener('change', () => {
+        const preset = presets.find(pr => pr.name === presetSelect.value);
+        if (preset) applyPreset(preset.params || preset);
+    });
+
+    savePresetBtn.addEventListener('click', () => {
+        const name = presetNameInput.value.trim();
+        if (!name) return;
+        const params = presetAPI.clampParams({
+            filterMinHz: filterFrequencyMin.value,
+            filterMaxHz: filterFrequencyMax.value,
+            gateMinS: gatingFrequencyMin.value,
+            gateMaxS: gatingFrequencyMax.value,
+            volume: volumeControl.value,
+            dynamicFilter: dynamicFilter.checked,
+            dynamicGating: dynamicGating.checked,
+            dynamicPlayback: dynamicPlaybackRate.checked,
+            binauralLayering: dynamicBinauralBeat.checked
+        });
+        const idx = presets.findIndex(p => p.name === name);
+        if (idx >= 0) {
+            presets[idx].params = params;
+        } else {
+            presets.push({ name, params });
+        }
+        presetAPI.savePresets(presets);
+        refreshPresetOptions();
+        presetSelect.value = name;
+    });
+
+    deletePresetBtn.addEventListener('click', () => {
+        const name = presetSelect.value;
+        if (!name) return;
+        presets = presets.filter(p => p.name !== name);
+        presetAPI.savePresets(presets);
+        refreshPresetOptions();
+        presetSelect.value = '';
+    });
+
     audioInput.addEventListener('change', async event => {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+        const metas = await FileManager.addFiles(files);
+        const first = metas[0];
+        if (first) {
+            const blob = await FileManager.getFileBlob(first.id);
+            if (blob) engine.changeAudio(blob, first.name);
+        }
+    });
+
+    folderInput.addEventListener('change', async event => {
         const files = event.target.files;
         if (!files || files.length === 0) return;
         const metas = await FileManager.addFiles(files);
