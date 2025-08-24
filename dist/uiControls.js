@@ -1,5 +1,11 @@
 import { AudioEngine } from './audioEngine.js';
-import { systemFfpPresets, loadPresets as loadFfpPresets, savePresets as saveFfpPresets } from './ffpPresets.js';
+import {
+    systemFfpPresets,
+    loadPresets as loadFfpPresets,
+    savePresets as saveFfpPresets,
+    importPresets as importFfpPresets,
+    exportPresets as exportFfpPresets,
+} from './ffpPresets.js';
 
 export function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
@@ -330,6 +336,20 @@ export function initControls() {
     audioPlayer.addEventListener('timeupdate', function () {
         playbackSpeedDisplay.innerHTML = `Playback Rate: ${audioPlayer.playbackRate.toFixed(2)}x`;
     });
+
+    if (typeof window !== 'undefined') {
+        window.ListenUpFfpPresets = {
+            ...(window.ListenUpFfpPresets || {}),
+            exportPresets: () => exportFfpPresets(),
+            importPresets: (json) => {
+                const imported = importFfpPresets(json);
+                ffpUserPresets = loadFfpPresets();
+                ffpPresets = [...ffpSystemPresets, ...ffpUserPresets];
+                refreshFfpPresetOptions();
+                return imported;
+            },
+        };
+    }
 
     window.addEventListener('click', engine.firstInteractionListener);
 
