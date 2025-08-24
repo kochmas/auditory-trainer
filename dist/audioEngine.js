@@ -1,3 +1,5 @@
+import { createFfpChain } from './ffpFilter.js';
+
 export function getRandomBetween(min, max) {
     return Math.random() * (max - min) + min;
 }
@@ -30,6 +32,11 @@ export class AudioEngine {
         this.gainNodeRight = null;
         this.pannerNodeLeft = null;
         this.pannerNodeRight = null;
+
+        // FFP chain
+        this.ffp = null;
+        this.ffpEnabled = false;
+        this.ffpParams = {};
     }
 
     initAudioNodes() {
@@ -38,14 +45,64 @@ export class AudioEngine {
         this.gainNode = this.audioContext.createGain();
         this.pannerNode = this.audioContext.createStereoPanner();
 
-        this.sourceNode.connect(this.filterNode);
-        this.filterNode.connect(this.pannerNode);
+        if (this.ffpEnabled) {
+            this.ffp = createFfpChain(this.audioContext, this.sourceNode, this.ffpParams);
+            this.ffp.output.connect(this.pannerNode);
+        } else {
+            this.sourceNode.connect(this.filterNode);
+            this.filterNode.connect(this.pannerNode);
+        }
         this.pannerNode.connect(this.gainNode);
         this.gainNode.connect(this.audioContext.destination);
     }
 
+    enableFfp(params = {}) {
+        this.ffpParams = params;
+        this.ffpEnabled = true;
+        clearInterval(this.filterInterval);
+        clearInterval(this.gatingInterval);
+        clearTimeout(this.filterTimeout);
+        clearTimeout(this.gatingTimeout);
+        if (this.sourceNode && this.pannerNode) {
+            if (this.filterNode) {
+                this.sourceNode.disconnect();
+                this.filterNode.disconnect();
+            }
+            this.ffp = createFfpChain(this.audioContext, this.sourceNode, this.ffpParams);
+            this.ffp.output.connect(this.pannerNode);
+        }
+    }
+
+    setFfpParams(params = {}) {
+        this.ffpParams = params;
+        if (this.ffp) {
+            this.ffp.setParams(params);
+        }
+    }
+
+    disableFfp() {
+        this.ffpEnabled = false;
+        if (this.ffp) {
+            this.ffp.dispose();
+            this.ffp = null;
+        }
+        if (this.sourceNode && this.filterNode && this.pannerNode) {
+            this.sourceNode.disconnect();
+            this.sourceNode.connect(this.filterNode);
+            this.filterNode.connect(this.pannerNode);
+        }
+    }
+
     updateSettings(newSettings) {
         Object.assign(this.settings, newSettings);
+        if (this.ffpEnabled) {
+            this.gainNode.gain.linearRampToValueAtTime(
+                this.settings.volume,
+                this.audioContext.currentTime + this.ramp
+            );
+            if (this.ffp) this.ffp.setParams(this.ffpParams);
+            return;
+        }
         this.dynamicGatingLogic();
         this.setFilterFreq();
         if (!this.settings.dynamicGating) {
@@ -206,8 +263,17 @@ export class AudioEngine {
     }
 
     configureAudio() {
-        this.dynamicFilterLogic();
-        this.dynamicGatingLogic();
+        if (!this.ffpEnabled) {
+            this.dynamicFilterLogic();
+            this.dynamicGatingLogic();
+        } else if (this.ffp) {
+            this.ffp.setParams(this.ffpParams);
+            this.gainNode.gain.linearRampToValueAtTime(
+                this.settings.volume,
+                this.audioContext.currentTime + this.ramp
+            );
+            this.setBeatGain();
+        }
         this.dynamicPanningLogic();
         this.dynamicPlaybackLogic();
     }
@@ -227,14 +293,16 @@ export class AudioEngine {
         }
         clearInterval(this.filterInterval);
         clearInterval(this.gatingInterval);
-        this.filterInterval = setInterval(() => {
-            const randomDelay = getRandomBetween(100, 3000);
-            setTimeout(() => this.dynamicFilterLogic(), randomDelay);
-        }, 1000);
-        this.gatingInterval = setInterval(() => {
-            const randomDelay = getRandomBetween(200, 4000);
-            setTimeout(() => this.dynamicGatingLogic(), randomDelay);
-        }, 1000);
+        if (!this.ffpEnabled) {
+            this.filterInterval = setInterval(() => {
+                const randomDelay = getRandomBetween(100, 3000);
+                setTimeout(() => this.dynamicFilterLogic(), randomDelay);
+            }, 1000);
+            this.gatingInterval = setInterval(() => {
+                const randomDelay = getRandomBetween(200, 4000);
+                setTimeout(() => this.dynamicGatingLogic(), randomDelay);
+            }, 1000);
+        }
     }
 
     changeAudio(file, name) {
