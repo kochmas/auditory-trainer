@@ -24,7 +24,6 @@
     let currentVolume = 1;
     let ramp = .15;
     let panningRamp = .45;
-    let sampleTracks = [];
 
     // JavaScript Audio Context
     let audioContext;
@@ -365,45 +364,7 @@
         stopBinauralBeats();
     });
 
-    const fetchSampleTracks = () => {
-
-        fetch('/music/tracklist.json')
-            .then(response => response.json())
-            .then(data => {
-
-                const trackList = document.getElementById('sampleTrackList');
-                trackList.innerHTML = '';
-                data.forEach(track => {
-                    const listItem = document.createElement('li');
-                    const label = track.name + " (" + track.artist_name + ")";
-                    listItem.textContent = label;
-                    listItem.addEventListener('click', function () {
-                        changeAudio(track.audio, label);
-                        $('#sampleTrackModal').modal('hide');
-                    });
-                    trackList.appendChild(listItem);
-                    track.element = listItem;
-                });
-                sampleTracks = data;
-
-            })
-            .catch(error => console.error('Error fetching sample tracks:', error));
-
-        document.getElementById('trackPickerBtn').addEventListener('click', function (evt) {
-            evt.preventDefault();
-            $('#sampleTrackModal').modal('show');
-        });
-    }
-
-    const randomTrack = () => {
-        const index = Math.floor(getRandomBetween(0, sampleTracks.length));
-        sampleTracks[index].element.click();
-        audioPlayer.play();
-        onPlayPressed();
-    }
-
     window.addEventListener('DOMContentLoaded', () => {
-        fetchSampleTracks();
         window.addEventListener('click', firstInteractionListener);
 
         shuffleBtn.addEventListener("click", function () {
@@ -418,8 +379,5 @@
             }
         });
 
-        audioPlayer.addEventListener("ended", function () {
-            if (settings.shuffle) randomTrack();
-        });
     })
 })();
