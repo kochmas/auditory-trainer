@@ -34,8 +34,34 @@ export function initControls() {
     const presetNameInput = document.getElementById('presetName');
     const savePresetBtn = document.getElementById('savePresetBtn');
     const deletePresetBtn = document.getElementById('deletePresetBtn');
+    const ffpBypass = document.getElementById('ffpBypass');
+    const ffpPresetSelect = document.getElementById('ffpPresetSelect');
+    const ffpPresetName = document.getElementById('ffpPresetName');
+    const ffpSavePresetBtn = document.getElementById('ffpSavePresetBtn');
+    const ffpDeletePresetBtn = document.getElementById('ffpDeletePresetBtn');
+    const ffpPreGain = document.getElementById('ffpPreGain');
+    const ffpLowShelfFreq = document.getElementById('ffpLowShelfFreq');
+    const ffpLowShelfGain = document.getElementById('ffpLowShelfGain');
+    const ffpPeaking1Freq = document.getElementById('ffpPeaking1Freq');
+    const ffpPeaking1Gain = document.getElementById('ffpPeaking1Gain');
+    const ffpPeaking2Freq = document.getElementById('ffpPeaking2Freq');
+    const ffpPeaking2Gain = document.getElementById('ffpPeaking2Gain');
+    const ffpHighShelfFreq = document.getElementById('ffpHighShelfFreq');
+    const ffpHighShelfGain = document.getElementById('ffpHighShelfGain');
+    const ffpTiltFreq = document.getElementById('ffpTiltFreq');
+    const ffpTiltGain = document.getElementById('ffpTiltGain');
+    const ffpModRate = document.getElementById('ffpModRate');
+    const ffpModDepth = document.getElementById('ffpModDepth');
+    const ffpModMode = document.getElementById('ffpModMode');
     const presetAPI = window.ListenUpPresets;
     let presets = presetAPI.loadPresets();
+    const ffpStorageKey = 'listenup_ffp_presets';
+    let ffpPresets = [];
+    try {
+        ffpPresets = JSON.parse(localStorage.getItem(ffpStorageKey)) || [];
+    } catch (e) {
+        ffpPresets = [];
+    }
 
     const settings = {
         filterMin: parseFloat(filterFrequencyMin.value),
@@ -91,6 +117,52 @@ export function initControls() {
         engine.dynamicBinauralBeatLogic();
     };
 
+    const getFfpParams = () => ({
+        preGain: parseFloat(ffpPreGain.value),
+        lowShelfFreq: parseFloat(ffpLowShelfFreq.value),
+        lowShelfGain: parseFloat(ffpLowShelfGain.value),
+        peaking1Freq: parseFloat(ffpPeaking1Freq.value),
+        peaking1Gain: parseFloat(ffpPeaking1Gain.value),
+        peaking2Freq: parseFloat(ffpPeaking2Freq.value),
+        peaking2Gain: parseFloat(ffpPeaking2Gain.value),
+        highShelfFreq: parseFloat(ffpHighShelfFreq.value),
+        highShelfGain: parseFloat(ffpHighShelfGain.value),
+        tiltFreq: parseFloat(ffpTiltFreq.value),
+        tiltGain: parseFloat(ffpTiltGain.value),
+        modRate: parseFloat(ffpModRate.value),
+        modDepth: parseFloat(ffpModDepth.value),
+        modMode: ffpModMode.value,
+    });
+
+    const refreshFfpPresetOptions = () => {
+        if (!ffpPresetSelect) return;
+        ffpPresetSelect.innerHTML = '<option value="">Select preset</option>';
+        ffpPresets.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.name;
+            opt.textContent = p.name;
+            ffpPresetSelect.appendChild(opt);
+        });
+    };
+
+    const applyFfpPreset = (p) => {
+        if (p.preGain !== undefined) ffpPreGain.value = p.preGain;
+        if (p.lowShelfFreq !== undefined) ffpLowShelfFreq.value = p.lowShelfFreq;
+        if (p.lowShelfGain !== undefined) ffpLowShelfGain.value = p.lowShelfGain;
+        if (p.peaking1Freq !== undefined) ffpPeaking1Freq.value = p.peaking1Freq;
+        if (p.peaking1Gain !== undefined) ffpPeaking1Gain.value = p.peaking1Gain;
+        if (p.peaking2Freq !== undefined) ffpPeaking2Freq.value = p.peaking2Freq;
+        if (p.peaking2Gain !== undefined) ffpPeaking2Gain.value = p.peaking2Gain;
+        if (p.highShelfFreq !== undefined) ffpHighShelfFreq.value = p.highShelfFreq;
+        if (p.highShelfGain !== undefined) ffpHighShelfGain.value = p.highShelfGain;
+        if (p.tiltFreq !== undefined) ffpTiltFreq.value = p.tiltFreq;
+        if (p.tiltGain !== undefined) ffpTiltGain.value = p.tiltGain;
+        if (p.modRate !== undefined) ffpModRate.value = p.modRate;
+        if (p.modDepth !== undefined) ffpModDepth.value = p.modDepth;
+        if (p.modMode !== undefined) ffpModMode.value = p.modMode;
+        if (!ffpBypass.checked) engine.setFfpParams(getFfpParams());
+    };
+
     refreshPresetOptions();
 
     presetSelect.addEventListener('change', () => {
@@ -130,6 +202,78 @@ export function initControls() {
         presetAPI.savePresets(presets);
         refreshPresetOptions();
         presetSelect.value = '';
+    });
+
+    refreshFfpPresetOptions();
+
+    ffpPresetSelect.addEventListener('change', () => {
+        const preset = ffpPresets.find(p => p.name === ffpPresetSelect.value);
+        if (preset) applyFfpPreset(preset.params || preset);
+    });
+
+    ffpSavePresetBtn.addEventListener('click', () => {
+        const name = ffpPresetName.value.trim();
+        if (!name) return;
+        const params = getFfpParams();
+        const idx = ffpPresets.findIndex(p => p.name === name);
+        if (idx >= 0) {
+            ffpPresets[idx].params = params;
+        } else {
+            ffpPresets.push({ name, params });
+        }
+        localStorage.setItem(ffpStorageKey, JSON.stringify(ffpPresets));
+        refreshFfpPresetOptions();
+        ffpPresetSelect.value = name;
+    });
+
+    ffpDeletePresetBtn.addEventListener('click', () => {
+        const name = ffpPresetSelect.value;
+        if (!name) return;
+        ffpPresets = ffpPresets.filter(p => p.name !== name);
+        localStorage.setItem(ffpStorageKey, JSON.stringify(ffpPresets));
+        refreshFfpPresetOptions();
+        ffpPresetSelect.value = '';
+    });
+
+    const updateFfpParams = () => {
+        if (!ffpBypass.checked) {
+            engine.setFfpParams(getFfpParams());
+        }
+    };
+
+    [
+        ffpPreGain,
+        ffpLowShelfFreq,
+        ffpLowShelfGain,
+        ffpPeaking1Freq,
+        ffpPeaking1Gain,
+        ffpPeaking2Freq,
+        ffpPeaking2Gain,
+        ffpHighShelfFreq,
+        ffpHighShelfGain,
+        ffpTiltFreq,
+        ffpTiltGain,
+        ffpModRate,
+        ffpModDepth
+    ].forEach(el => {
+        if (el) el.addEventListener('input', updateFfpParams);
+    });
+    ffpModMode.addEventListener('change', updateFfpParams);
+
+    ffpBypass.addEventListener('change', () => {
+        if (ffpBypass.checked) {
+            engine.disableFfp();
+            dynamicFilter.disabled = false;
+            dynamicGating.disabled = false;
+            updateSettings();
+        } else {
+            engine.enableFfp(getFfpParams());
+            dynamicFilter.checked = false;
+            dynamicGating.checked = false;
+            dynamicFilter.disabled = true;
+            dynamicGating.disabled = true;
+            updateSettings();
+        }
     });
 
     audioInput.addEventListener('change', async event => {
