@@ -112,6 +112,7 @@ export function initControls() {
         dynamicGating.checked = p.dynamicGating;
         dynamicPlaybackRate.checked = p.dynamicPlayback;
         dynamicBinauralBeat.checked = p.binauralLayering;
+        applyFfpPreset(p.ffp || {});
         updateSettings();
         engine.dynamicPlaybackLogic();
         engine.dynamicBinauralBeatLogic();
@@ -182,7 +183,8 @@ export function initControls() {
             dynamicFilter: dynamicFilter.checked,
             dynamicGating: dynamicGating.checked,
             dynamicPlayback: dynamicPlaybackRate.checked,
-            binauralLayering: dynamicBinauralBeat.checked
+            binauralLayering: dynamicBinauralBeat.checked,
+            ffp: getFfpParams(),
         });
         const idx = presets.findIndex(p => p.name === name);
         if (idx >= 0) {
