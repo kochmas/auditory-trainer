@@ -24,7 +24,6 @@
     let currentVolume = 1;
     let ramp = .15;
     let panningRamp = .45;
-    let sampleTracks = [];
 
     // JavaScript Audio Context
     let audioContext;
@@ -42,7 +41,6 @@
     const dynamicGating = document.getElementById('dynamicGating');
     const dynamicPlaybackRate = document.getElementById('dynamicPlaybackRate');
     const dynamicBinauralBeat = document.getElementById('dynamicBinauralBeat');
-    const shuffleBtn = document.getElementById("shuffleBtn");
 
     // Audio Nodes
     let sourceNode;
@@ -72,8 +70,7 @@
         dynamicFilter: dynamicFilter.checked,
         dynamicGating: dynamicGating.checked,
         dynamicPlaybackRate: dynamicPlaybackRate.checked,
-        dynamicBinauralBeat: dynamicBinauralBeat.checked,
-        shuffle: true
+        dynamicBinauralBeat: dynamicBinauralBeat.checked
     };
 
     // Initialize Audio Nodes and connect them
@@ -382,9 +379,7 @@
                         $('#sampleTrackModal').modal('hide');
                     });
                     trackList.appendChild(listItem);
-                    track.element = listItem;
                 });
-                sampleTracks = data;
 
             })
             .catch(error => console.error('Error fetching sample tracks:', error));
@@ -395,31 +390,8 @@
         });
     }
 
-    const randomTrack = () => {
-        const index = Math.floor(getRandomBetween(0, sampleTracks.length));
-        sampleTracks[index].element.click();
-        audioPlayer.play();
-        onPlayPressed();
-    }
-
     window.addEventListener('DOMContentLoaded', () => {
         fetchSampleTracks();
         window.addEventListener('click', firstInteractionListener);
-
-        shuffleBtn.addEventListener("click", function () {
-            if (this.classList.contains("btn-secondary")) {
-                this.classList.remove("btn-secondary");
-                this.classList.add("btn-success");
-                settings.shuffle = true;
-            } else {
-                this.classList.remove("btn-success");
-                this.classList.add("btn-secondary");
-                settings.shuffle = false;
-            }
-        });
-
-        audioPlayer.addEventListener("ended", function () {
-            if (settings.shuffle) randomTrack();
-        });
     })
 })();

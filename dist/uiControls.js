@@ -75,8 +75,7 @@ export function initControls() {
         dynamicFilter: dynamicFilter.checked,
         dynamicGating: dynamicGating.checked,
         dynamicPlaybackRate: dynamicPlaybackRate.checked,
-        dynamicBinauralBeat: dynamicBinauralBeat.checked,
-        shuffle: true
+        dynamicBinauralBeat: dynamicBinauralBeat.checked
     };
 
     const engine = new AudioEngine(audioPlayer, settings);
