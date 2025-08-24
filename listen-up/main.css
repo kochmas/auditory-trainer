@@ -178,3 +178,7 @@ button.small {
 .bg-primary {
   background-color: #0074cc !important;
 }
+
+#audioPlayer {
+  width: 100%;
+}

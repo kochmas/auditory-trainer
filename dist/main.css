@@ -188,3 +188,7 @@ button.small {
 .ffp-section h6 {
   margin-top: 0.8em;
 }
+
+#audioPlayer {
+  width: 100%;
+}
