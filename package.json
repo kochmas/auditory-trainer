@@ -21,7 +21,7 @@
   "type": "module",
   "jest": {
     "testMatch": [
-      "**/tests/audioEngine.test.js"
+      "**/tests/**/*.test.js"
     ]
   }
 }
