@@ -178,3 +178,13 @@ button.small {
 .bg-primary {
   background-color: #0074cc !important;
 }
+
+.ffp-section {
+  background-color: #f4f4f4;
+  padding: 0.5em;
+  border-radius: 0.25rem;
+}
+
+.ffp-section h6 {
+  margin-top: 0.8em;
+}
