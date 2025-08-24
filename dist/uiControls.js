@@ -1,4 +1,5 @@
 import { AudioEngine } from './audioEngine.js';
+import { systemFfpPresets, loadPresets as loadFfpPresets, savePresets as saveFfpPresets } from './ffpPresets.js';
 
 export function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
@@ -55,13 +56,9 @@ export function initControls() {
     const ffpModMode = document.getElementById('ffpModMode');
     const presetAPI = window.ListenUpPresets;
     let presets = presetAPI.loadPresets();
-    const ffpStorageKey = 'listenup_ffp_presets';
-    let ffpPresets = [];
-    try {
-        ffpPresets = JSON.parse(localStorage.getItem(ffpStorageKey)) || [];
-    } catch (e) {
-        ffpPresets = [];
-    }
+    const ffpSystemPresets = systemFfpPresets;
+    let ffpUserPresets = loadFfpPresets();
+    let ffpPresets = [...ffpSystemPresets, ...ffpUserPresets];
 
     const settings = {
         filterMin: parseFloat(filterFrequencyMin.value),
@@ -217,13 +214,14 @@ export function initControls() {
         const name = ffpPresetName.value.trim();
         if (!name) return;
         const params = getFfpParams();
-        const idx = ffpPresets.findIndex(p => p.name === name);
+        const idx = ffpUserPresets.findIndex(p => p.name === name);
         if (idx >= 0) {
-            ffpPresets[idx].params = params;
+            ffpUserPresets[idx].params = params;
         } else {
-            ffpPresets.push({ name, params });
+            ffpUserPresets.push({ name, params });
         }
-        localStorage.setItem(ffpStorageKey, JSON.stringify(ffpPresets));
+        saveFfpPresets(ffpUserPresets);
+        ffpPresets = [...ffpSystemPresets, ...ffpUserPresets];
         refreshFfpPresetOptions();
         ffpPresetSelect.value = name;
     });
@@ -231,8 +229,10 @@ export function initControls() {
     ffpDeletePresetBtn.addEventListener('click', () => {
         const name = ffpPresetSelect.value;
         if (!name) return;
-        ffpPresets = ffpPresets.filter(p => p.name !== name);
-        localStorage.setItem(ffpStorageKey, JSON.stringify(ffpPresets));
+        if (ffpSystemPresets.some(p => p.name === name)) return;
+        ffpUserPresets = ffpUserPresets.filter(p => p.name !== name);
+        saveFfpPresets(ffpUserPresets);
+        ffpPresets = [...ffpSystemPresets, ...ffpUserPresets];
         refreshFfpPresetOptions();
         ffpPresetSelect.value = '';
     });
